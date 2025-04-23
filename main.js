@@ -61,25 +61,56 @@ class Task {
 // Lista de tareas mockeadas
 let tasks = taskTitles.map((title, index) => {
   return new Task(title, taskDescriptions[index], getRandomFutureDate());
+
 });
 
 function loadData() {
-  // implementar el renderizado de las tareas
+const taskContainer = document.getElementById('app'); // Asegúrate de que este ID sea correcto
+
+  if (taskConatiner) {
+    // 1. Obtener las tareas del Local Storage
+    const storedTasks = localStorage.getItem('tasks');
+    const tasks = storedTasks ? JSON.parse(storedTasks) : [];
+
+
+
+  if (tasks.length > 0) {
+      // implementar el renderizado de las tareas
+      taskContainer.innerHTML = tasks
+        .map((task) =>
+          Task.buildTaskCard(task)
+        )
+        .join("");
+    } else {
+      taskConatiner.innerHTML = `<div class="text-center text-gray-400 text-2xl">No hay tareas</div>`;
+    }else{
+    console.error("Nose se encontro ")
+    }
 }
-
+document.addEventListener('DOMContentLoaded', loadData);
 function postData(event) {
-  event.preventDefault();
-
   try {
-    // Get form data
+
+    const titleInput = document.getElementById('taskTitle');
+    const descriptionInput = document.getElementById('taskDescription');
+    const title = titleInput.value;
+    const description = descriptionInput.value;
+
+    //task//
+    const task = new Task(title, description);
 
     saveTask(task);
+    const form = event.target;
     form.reset();
+
     const modal = document.getElementById("task-modal");
     modal.checked = false;
-    showNotification("Tarea añadida correctamente!");
+
+    showNotification("Añadida correctamente!");
+
   } catch (error) {
-    showNotification("Error al añadir la tarea. Inténtalo de nuevo.");
+    console.error("Error en postData:", error);
+    showNotification("Error al añadir. Inténtalo de nuevo.");
   }
 }
 
@@ -89,11 +120,23 @@ function postData(event) {
  *
  * */
 
+
 function saveTask(task) {
   // implementar la creación de la tarea
-  console.log(task);
+  const storedTasks = localStorage.getItem('tasks');
+      let tasksArray = storedTasks ? JSON.parse(storedTasks) : []
+
+  tasksArray.push(task);
+
+   localStorage.setItem('tasks', JSON.stringify(tasksArray));
+
+  console.log("Tarea guardada",task);
 
   loadData();
+  catch (error) {
+      console.error("Error al guardar la tarea en Local Storage:", error);
+      showNotification("Error al guardar la tarea.");
+    }
 }
 
 function deleteTask(id) {
